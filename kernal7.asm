@@ -110,6 +110,7 @@ CoreLoop: ;infinite loop for core 1..3
 include "FBinit16.asm"
 include "timer2_2Param.asm"
 include "drawpixel.asm"
+include "DrawChar.asm"
 align 4
 Value:
   db "0"
