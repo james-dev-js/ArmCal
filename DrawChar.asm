@@ -18,4 +18,3 @@ DrawChars:
   subne r0,SCREEN_X * CHAR_Y ; Jump To Top Of Char
   addne r0,CHAR_X ; Jump Forward 1 Char
   bne DrawChars ; IF (Number Of Text Characters != 0) Continue To Print Characters
- b cont

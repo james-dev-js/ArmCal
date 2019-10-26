@@ -28,10 +28,15 @@ orr r10,GPIO_OFFSET ;Base address of GPIO
 ldr r8,[r10,#4] ;read function register for GPIO 10 - 19
 bic r8,r8,#27  ;bit clear  27 = 9 * 3    = read access
 str r8,[r10,#4];10 input
+ldr r8,[r10,#4] ;read function register for GPIO 10 - 19
+bic r12,r12,#56
+str r12,[r10,#4]; 11 input
 
 ;set up input
 mov r8,#1
 lsl r8,#10  ;bit 10 to enable input GPIO10
+mov r12,#1
+lsl r12,#11 ;bit 11 to enable input GPIO11
 
 mov r0,BASE
 bl FB_Init
@@ -50,18 +55,30 @@ loop$:
 ;read first block of GPIOs
 ldr r9,[r10,#52] ;read gpios 0-31
 tst r9,#1024  ; use tst to check bit 10
-bne red ;if ==0
+bne Rock ;if ==0 e.g user selects Rock
 
+ldr r9,[r10,#56] ;read gpios 0-31
+tst r9,#1024
+bne Paper ;if user selects Paper
+
+;else user selects Scissors
 bl setup_chars
-adr r2,Text ; R2 = Text Offset "Open"
-
+adr r2,scissors ; R2 = Text Offset "Scissors"
 b DrawChars
+b cont
 
-red:
-bl setup_chars
-adr r2,Text2 ; R2 = Text Offset "Closed"
+Rock:
+ bl setup_chars
+ adr r2,rock ; R2 = Text Offset "Rock"
+ b DrawChars
+ b cont
 
-b DrawChars
+Paper:
+ bl setup_chars
+ adr r2,paper ; R2 = Text Offset "Paper"
+ b DrawChars
+ b cont
+
 cont:
 
 ;call timer (stop keybounce)
@@ -82,20 +99,21 @@ setup_chars:
  orr r1,#256
  add r0,r1 ; Place Text At XY Position 256,32
  adr r1,Font ; R1 = Characters
- mov r3,#6 ; R3 = Number Of Text Characters To Print
+ mov r3,#8 ; R3 = Number Of Text Characters To Print
 bx lr
 
 include "FBinit8.asm"
 include "timer2_2Param.asm"
 include "DrawChar.asm"
 align 4
-Text:
-  db " Open!"
+rock:
+  db " Rock !"
 align 4
-Text2:
-  db "Closed"
-A:
- db "A"
+paper:
+  db " Paper !"
+align 4
+scissors:
+ db "Scissors"
 
 align 4
 Font:
