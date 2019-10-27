@@ -92,13 +92,13 @@ Paper:
  tst r9,#2048
  bne Scissors ;if user selects Paper
  bl setup_chars
- adr r2,Paper; R2 = Text Offset "Rock"
+ adr r2,paper; R2 = Text Offset "Rock"
  b DrawChars
  str r13,[r10,#28]
  b cont
 
 Scissors:
- bl setup_chars
+ bl setup_chars_ai
  adr r2,scissors ; R2 = Text Offset "Paper"
  b DrawChars
  b cont
