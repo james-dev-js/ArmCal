@@ -28,7 +28,7 @@ orr r10,GPIO_OFFSET ;Base address of GPIO
 ldr r8,[r10,#4] ;read function register for GPIO 10 - 19
 bic r8,r8,#27  ;bit clear  27 = 9 * 3    = read access
 str r8,[r10,#4];10 input
-ldr r8,[r10,#4] ;read function register for GPIO 10 - 19
+ldr r12,[r10,#4] ;read function register for GPIO 10 - 19
 bic r12,r12,#56
 str r12,[r10,#4]; 11 input
 
@@ -37,6 +37,21 @@ mov r8,#1
 lsl r8,#10  ;bit 10 to enable input GPIO10
 mov r12,#1
 lsl r12,#11 ;bit 11 to enable input GPIO11
+
+;setup outputs
+ldr r13,[r10,#4] ;LED 1 (GPIO18)
+orr r13, $1000000 ;set bit 24
+str r13,[r0,#4]
+
+ldr r14,[r10,#8] ;LED 2 (GPIO23)
+orr r14,$200     ;set bit 9
+str r14,[r10,#8] ;GPIO23 output
+
+mov r13,#1
+lsl r13,#18
+
+mov r14,#1
+lsl r14,#23
 
 mov r0,BASE
 bl FB_Init
@@ -52,42 +67,43 @@ CHAR_X = 8
 CHAR_Y = 8
 
 loop$:
+ ;call timer (stop keybounce)
+ push {r0-r11}
+ mov r0,BASE
+ mov r1,$3D0000
+ orr r1,$000900   ;TIMER_MICROSECONDS = 4,000,000
+ bl TIMER
+ pop {r0-r11}
+
 ;read first block of GPIOs
 ldr r9,[r10,#52] ;read gpios 0-31
 tst r9,#1024  ; use tst to check bit 10
-bne Rock ;if ==0 e.g user selects Rock
+bne Paper ;if ==0 e.g user selects Rock
 
-ldr r9,[r10,#56] ;read gpios 0-31
-tst r9,#1024
-bne Paper ;if user selects Paper
+;ldr r9,[r10,#52] ;read gpios 0-31
 
 ;else user selects Scissors
 bl setup_chars
-adr r2,scissors ; R2 = Text Offset "Scissors"
+adr r2,rock ; R2 = Text Offset "Scissors"
 b DrawChars
 b cont
 
-Rock:
+Paper:
+ tst r9,#2048
+ bne Scissors ;if user selects Paper
  bl setup_chars
- adr r2,rock ; R2 = Text Offset "Rock"
+ adr r2,Paper; R2 = Text Offset "Rock"
  b DrawChars
+ str r13,[r10,#28]
  b cont
 
-Paper:
+Scissors:
  bl setup_chars
- adr r2,paper ; R2 = Text Offset "Paper"
+ adr r2,scissors ; R2 = Text Offset "Paper"
  b DrawChars
  b cont
 
 cont:
-
-;call timer (stop keybounce)
-;push {r0-r11}
-;mov r0,BASE
-;mov r1,$0A100
-;orr r1,$00020   ;TIMER_MICROSECONDS = 40,000
-;bl TIMER
-;pop {r0-r11}
 
 b loop$
 
@@ -96,6 +112,17 @@ setup_chars:
  mov r0,r7
  mov r1,SCREEN_X
  lsl r1,r1,5 ;32
+ orr r1,#256
+ add r0,r1 ; Place Text At XY Position 256,32
+ adr r1,Font ; R1 = Characters
+ mov r3,#8 ; R3 = Number Of Text Characters To Print
+bx lr
+
+setup_chars_ai:
+ ; Setup Characters
+ mov r0,r7
+ mov r1,SCREEN_X
+ lsl r1,r1,10 ;32
  orr r1,#256
  add r0,r1 ; Place Text At XY Position 256,32
  adr r1,Font ; R1 = Characters

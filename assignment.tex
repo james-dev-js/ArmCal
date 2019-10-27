@@ -17,6 +17,20 @@
 
 \pagebreak
 \section*{Introduction}
+I am trying to make the classic Rock, Paper, Scissors (RPS) game in assembly. I initially tried to make
+a calculator in assembly but realise the time to implement such an application is too long. I 
+decide to make RPS becasue I could make it realitively easy, where there are two inputs and 3 outputs
+(including the screen). The users makes a selection either Rock, Paper or no button down for Scissors, 
+then the computer will make a decision after 4 seconds and and display its answer.  An indicator LED 
+will light up red or green depending if the player lost or won respectively.
 
-
+\section*{Design Outline}
+Physical components of the build was 2 10k ohm resistors, 2 1k Ohm resistors, 2 buttons,
+2 LED's and a lot of wiring, the physical setup of the system is realitively easy due to the simplicity
+of the hardware. The software components was written in FASM becasue that is what I have been taught.
+The functions I have created are the 3 different actions Rock, Paper and Scissors where they link up to
+a created function called DrawChars (located in DrawChar.asm) which will handle the drawing of the characters
+on to the display. I have also created a new fucntion for the Drawing the AI's selection to the screen 
+as well as writing the gameplay loop where the ai creates a psuedo random number between 0-2 which is Rock, Paper
+or Scissors respectively. Then picks one and its compared to the users output.
 \end{document}
