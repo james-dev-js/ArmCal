@@ -67,11 +67,12 @@ CHAR_X = 8
 CHAR_Y = 8
 
 loop$:
+ str r13,[r10,#40]
  ;call timer (stop keybounce)
  push {r0-r11}
  mov r0,BASE
- mov r1,$3D0000
- orr r1,$000900   ;TIMER_MICROSECONDS = 4,000,000
+ mov r1,$3D000
+ orr r1,$00090   ;TIMER_MICROSECONDS = 4,000,000
  bl TIMER
  pop {r0-r11}
 
@@ -82,7 +83,6 @@ bne Paper ;if ==0 e.g user selects Rock
 
 ;ldr r9,[r10,#52] ;read gpios 0-31
 
-;else user selects Scissors
 bl setup_chars
 adr r2,rock ; R2 = Text Offset "Scissors"
 b DrawChars
@@ -94,16 +94,17 @@ Paper:
  bl setup_chars
  adr r2,paper; R2 = Text Offset "Rock"
  b DrawChars
- str r13,[r10,#28]
  b cont
 
 Scissors:
- bl setup_chars_ai
+ bl setup_chars
  adr r2,scissors ; R2 = Text Offset "Paper"
  b DrawChars
  b cont
 
 cont:
+
+ b win
 
 b loop$
 
@@ -118,16 +119,22 @@ setup_chars:
  mov r3,#8 ; R3 = Number Of Text Characters To Print
 bx lr
 
-setup_chars_ai:
- ; Setup Characters
- mov r0,r7
- mov r1,SCREEN_X
- lsl r1,r1,10 ;32
- orr r1,#256
- add r0,r1 ; Place Text At XY Position 256,32
- adr r1,Font ; R1 = Characters
- mov r3,#8 ; R3 = Number Of Text Characters To Print
-bx lr
+b loop$
+
+
+equal:
+ bl setup_chars
+ adr r2,draw ; R2 = Text Offset "Draw"
+ b DrawChars
+ b loop$
+
+win:
+ str r13,[r10,#28]
+ b loop$
+
+lose:
+ str r14,[r10,#28]
+ b loop$
 
 include "FBinit8.asm"
 include "timer2_2Param.asm"
@@ -141,6 +148,10 @@ paper:
 align 4
 scissors:
  db "Scissors"
+align 4
+draw:
+ db "Draw"
+
 
 align 4
 Font:
