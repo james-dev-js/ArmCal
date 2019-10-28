@@ -67,14 +67,13 @@ CHAR_X = 8
 CHAR_Y = 8
 
 loop$:
- str r13,[r10,#40]
  ;call timer (stop keybounce)
- push {r0-r11}
- mov r0,BASE
- mov r1,$3D000
- orr r1,$00090   ;TIMER_MICROSECONDS = 4,000,000
- bl TIMER
- pop {r0-r11}
+; push {r0-r11}
+ ;mov r0,BASE
+ ;mov r1,$3D000
+ ;orr r1,$00090   ;TIMER_MICROSECONDS = 4,000,000
+ ;bl TIMER
+ ;pop {r0-r11}
 
 ;read first block of GPIOs
 ldr r9,[r10,#52] ;read gpios 0-31
