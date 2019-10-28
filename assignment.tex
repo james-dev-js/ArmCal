@@ -1,5 +1,6 @@
 \documentclass{article}
 \usepackage{fontenc}
+\usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage[utf8]{inputenc}
 
@@ -28,13 +29,27 @@ will light up red or green depending if the player lost or won respectively.
 Physical components of the build was 2 10k ohm resistors, 2 1k Ohm resistors, 2 buttons,
 2 LED's and a lot of wiring, the physical setup of the system is realitively easy due to the simplicity
 of the hardware. The software components was written in FASM becasue that is what I have been taught.
-The functions I have created are the 3 different actions Rock, Paper and Scissors where they link up to
-a created function called DrawChars (located in DrawChar.asm) which will handle the drawing of the characters
-on to the display. I have also created a new fucntion for the Drawing the AI's selection to the screen 
-as well as writing the gameplay loop where the ai creates a psuedo random number between 0-2 which is Rock, Paper
-or Scissors respectively. Then picks one and its compared to the users output.
+The functions I have created are the 3 different actions Rock, Paper and Scissors
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{mainloop.png}
+    \caption{The main loop}
+\end{figure}
+where they link up to a created function called DrawChars (located in DrawChar.asm) which will handle the drawing of the characters
+on to the display.
 \\
-The way the 
+The program first waits for a user input and declares a response respectively, if the user selects scissors (e.g no input) the lights
+do not turn on and declare a draw. When the user selects rock it will turn on the green LED and declare the user the winner, then if
+the user selects Paper it will display a red LED indicating the user has lost.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{leds.png}
+    \caption{The led functions}
+\end{figure}
+
+The other functions created are just inialising the GPIO pins and defining the inplementation of the screen so the users input can view
+their choice visually.
+
 
 \section*{Assumptions}
 I have assumed that using the GPIO reference doc that was in the earlier labs was fair to use.
@@ -44,5 +59,14 @@ As of current build the Ai only ever chooses Scissors and therefore the user can
 
 \pagebreak
 \section*{Running Program}
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.08]{ledon.jpg}
+    \caption{ledon}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.08]{rock.jpg}
+\end{figure}
 
 \end{document}

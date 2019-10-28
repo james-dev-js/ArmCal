@@ -1,3 +1,8 @@
+; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+;                       Rock, Paper, Scissors
+;                          by James Hassall
+;                             102100517
+; \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 ; Raspberry Pi B+,2 'Bare Metal' 16BPP Draw text based on input:
 ; 1. Setup Frame Buffer
 ;    assemble struct with screen requirements
@@ -8,8 +13,10 @@
 ;    pin 19: GPI10  (input)
 ;    NC: pin 19 not connected (GPIO 10)
 ;    Pull-up: pin 19 connected to +3.3V (pin 17)
-; 3. Draw some text depending on the state of the GPIO pin.
-;    Some code, DrawChar, Font8x8 by Peter Lemon (Krom)
+;    Set up GPIO output
+;    pin 12: GPIO18
+;    pin 16: GPIO23
+; 3. Draw the users selection with a corsponding output led
 
 ;r0 = pointer + x * BITS_PER_PIXEL/8 + y * SCREEN_X * BITS_PER_PIXEL/8
 format binary as 'img'
@@ -17,7 +24,6 @@ format binary as 'img'
 
 ;memory addresses of BASE
 BASE = $3F000000 ; 2
-;BASE = $20000000 ; B+
 org $0000
 mov sp,$1000
 
@@ -38,30 +44,13 @@ mov r12,#1
 lsl r12,#11 ;bit 11 to enable input GPIO11
 
 ;outputs
-mov r8,#1
-lsl r8,#24
-str r8,[r10,#4]
+mov r8,#1        ;LED 1 (GPIO18)
+lsl r8,#24       ;set bit 24
+str r8,[r10,#4]  ;GPIO18 output
 
-mov r8,#1
-lsl r8,#9
-str r8,[r10,#8]
-
-
-
-;setup outputs
-;ldr r13,[r10,#4] ;LED 1 (GPIO18)
-;orr r13, $1000000 ;set bit 24
-;str r13,[r0,#4]
-
-;ldr r14,[r10,#8] ;LED 2 (GPIO23)
-;orr r14,$200     ;set bit 9
-;str r14,[r10,#8] ;GPIO23 output
-
-;mov r13,#1
-;lsl r13,#18
-
-;mov r14,#1
-;lsl r14,#23
+mov r8,#1        ;LED 2 (GPIO23)
+lsl r8,#9        ;set bit 9
+str r8,[r10,#8]  ;GPIO23 output
 
 mov r0,BASE
 bl FB_Init
@@ -77,40 +66,30 @@ CHAR_X = 8
 CHAR_Y = 8
 
 loop$:
- ;call timer (stop keybounce)
-; push {r0-r11}
- ;mov r0,BASE
- ;mov r1,$3D000
- ;orr r1,$00090   ;TIMER_MICROSECONDS = 4,000,000
- ;bl TIMER
- ;pop {r0-r11}
-
 ;read first block of GPIOs
 ldr r9,[r10,#52] ;read gpios 0-31
 tst r9,#1024  ; use tst to check bit 10
 bne Paper ;if ==0 e.g user selects Rock
 
-;ldr r9,[r10,#52] ;read gpios 0-31
-
 bl led1
 bl setup_chars
-adr r2,rock ; R2 = Text Offset "Scissors"
+adr r2,rock ; R2 = Text Offset "Rock"
 bl DrawChars
 b cont
 
 Paper:
  tst r9,#2048
- bne Scissors ;if user selects Paper
+ bne Scissors ;if ==0 e.g user selects Paper
  bl led2
  bl setup_chars
- adr r2,paper; R2 = Text Offset "Rock"
+ adr r2,paper; R2 = Text Offset "Paper"
  bl DrawChars
  b cont
 
 Scissors:
  bl ledoff
  bl setup_chars
- adr r2,scissors ; R2 = Text Offset "Paper"
+ adr r2,scissors ; R2 = Text Offset "Scissors"
  bl DrawChars
  b cont
 
@@ -118,6 +97,7 @@ cont:
 
 b loop$
 
+; \\\ CHAR SETUP SO THEY ARE POSITIONED RIGHT \\\
 setup_chars:
 ; Setup Characters
  mov r0,r7
@@ -130,6 +110,8 @@ setup_chars:
 bx lr
 
 b loop$
+
+; \\\ LED LOOPS \\\
 
 led1:
  mov r8,#1
@@ -151,6 +133,8 @@ ledoff:
  lsl r8,#23
  str r8,[r10,#40]
  bx lr
+
+; \\\ INCLUDES AND DB SCRIPTS \\\
 
 include "FBinit8.asm"
 include "timer2_2Param.asm"
