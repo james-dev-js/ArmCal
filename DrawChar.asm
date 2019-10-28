@@ -10,7 +10,6 @@
 bx lr
 
 DrawChars:
-  push {r5,r6}
   mov r4,CHAR_Y ; R4 = Character Row Counter
   ldrb r5,[r2],1 ; R5 = Next Text Character
   add r5,r1,r5,lsl 6 ; Add Shift To Correct Position In Font (* 64)
@@ -18,5 +17,4 @@ DrawChars:
   subs r3,1 ; Subtract Number Of Text Characters To Print
   subne r0,SCREEN_X * CHAR_Y ; Jump To Top Of Char
   addne r0,CHAR_X ; Jump Forward 1 Char
-  pop {r5,r6}
   bne DrawChars ; IF (Number Of Text Characters != 0) Continue To Print Characters

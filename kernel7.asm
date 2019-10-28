@@ -31,27 +31,37 @@ str r8,[r10,#4];10 input
 ldr r12,[r10,#4] ;read function register for GPIO 10 - 19
 bic r12,r12,#56
 str r12,[r10,#4]; 11 input
-
 ;set up input
 mov r8,#1
 lsl r8,#10  ;bit 10 to enable input GPIO10
 mov r12,#1
 lsl r12,#11 ;bit 11 to enable input GPIO11
 
+;outputs
+mov r8,#1
+lsl r8,#24
+str r8,[r10,#4]
+
+mov r8,#1
+lsl r8,#9
+str r8,[r10,#8]
+
+
+
 ;setup outputs
-ldr r13,[r10,#4] ;LED 1 (GPIO18)
-orr r13, $1000000 ;set bit 24
-str r13,[r0,#4]
+;ldr r13,[r10,#4] ;LED 1 (GPIO18)
+;orr r13, $1000000 ;set bit 24
+;str r13,[r0,#4]
 
-ldr r14,[r10,#8] ;LED 2 (GPIO23)
-orr r14,$200     ;set bit 9
-str r14,[r10,#8] ;GPIO23 output
+;ldr r14,[r10,#8] ;LED 2 (GPIO23)
+;orr r14,$200     ;set bit 9
+;str r14,[r10,#8] ;GPIO23 output
 
-mov r13,#1
-lsl r13,#18
+;mov r13,#1
+;lsl r13,#18
 
-mov r14,#1
-lsl r14,#23
+;mov r14,#1
+;lsl r14,#23
 
 mov r0,BASE
 bl FB_Init
@@ -82,28 +92,29 @@ bne Paper ;if ==0 e.g user selects Rock
 
 ;ldr r9,[r10,#52] ;read gpios 0-31
 
+bl led1
 bl setup_chars
 adr r2,rock ; R2 = Text Offset "Scissors"
-b DrawChars
+bl DrawChars
 b cont
 
 Paper:
  tst r9,#2048
  bne Scissors ;if user selects Paper
+ bl led2
  bl setup_chars
  adr r2,paper; R2 = Text Offset "Rock"
- b DrawChars
+ bl DrawChars
  b cont
 
 Scissors:
+ bl ledoff
  bl setup_chars
  adr r2,scissors ; R2 = Text Offset "Paper"
- b DrawChars
+ bl DrawChars
  b cont
 
 cont:
-
- b win
 
 b loop$
 
@@ -120,20 +131,26 @@ bx lr
 
 b loop$
 
+led1:
+ mov r8,#1
+ lsl r8,#18
+ str r8,[r10,#28]
+ bx lr
 
-equal:
- bl setup_chars
- adr r2,draw ; R2 = Text Offset "Draw"
- b DrawChars
- b loop$
+led2:
+ mov r8,#1
+ lsl r8,#23
+ str r8,[r10,#28]
+ bx lr
 
-win:
- str r13,[r10,#28]
- b loop$
-
-lose:
- str r14,[r10,#28]
- b loop$
+ledoff:
+ mov r8,#1
+ lsl r8,#18
+ str r8,[r10,#40]
+ mov r8,#1
+ lsl r8,#23
+ str r8,[r10,#40]
+ bx lr
 
 include "FBinit8.asm"
 include "timer2_2Param.asm"
