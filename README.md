@@ -1,2 +1,2 @@
-# ArmCal
-An Arm based Calculator
+# Rock Paper Scissors
+A rock paper scissors in asm
